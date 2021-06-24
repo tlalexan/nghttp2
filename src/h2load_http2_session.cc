@@ -32,6 +32,8 @@
 #include "util.h"
 #include "template.h"
 
+// #include <typeinfo>
+
 using namespace nghttp2;
 
 namespace h2load {
@@ -273,14 +275,25 @@ int Http2Session::submit_request() {
 
   nghttp2_data_provider prd{{0}, file_read_callback};
 
+
+  auto path_find_it = find_if(nva.begin(), nva.end(), [] (const nghttp2_nv& nv) { return strncmp((const char*)nv.name, ":path", 5) == 0; } );
+  const nghttp2_nv& path_nv = *path_find_it;
+  unsigned char* path = (unsigned char*)path_nv.value;
+  // std::cout << "path:" << path << '\n';  
+
   auto stream_id =
       nghttp2_submit_request(session_, nullptr, nva.data(), nva.size(),
                              config->data_fd == -1 ? nullptr : &prd, nullptr);
+
   if (stream_id < 0) {
     return -1;
   }
 
   client_->on_request(stream_id);
+
+  auto req_stat = client_->get_req_stat(stream_id);
+  assert(req_stat);
+  client_->record_request_path(req_stat, path);
 
   return 0;
 }

@@ -137,6 +137,8 @@ struct RequestStat {
   // true if stream was successfully closed.  This means stream was
   // not reset, but it does not mean HTTP level error (e.g., 404).
   bool completed;
+
+  unsigned char* path;
 };
 
 struct ClientStat {
@@ -394,6 +396,7 @@ struct Client {
   RequestStat *get_req_stat(int32_t stream_id);
 
   void record_request_time(RequestStat *req_stat);
+  void record_request_path(RequestStat *req_stat, unsigned char* path);
   void record_connect_start_time();
   void record_connect_time();
   void record_ttfb();

@@ -832,8 +832,15 @@ void Client::on_stream_close(int32_t stream_id, bool success, bool final) {
       auto delta = std::chrono::duration_cast<std::chrono::microseconds>(
           req_stat->stream_close_time - req_stat->request_time);
 
-      std::array<uint8_t, 256> buf;
+      std::array<uint8_t, 2048> buf;
       auto p = std::begin(buf);
+
+      // std::cout << "path:" << req_stat->path << '\n';
+      for(unsigned char* it = req_stat->path; *it; ++it) {
+        *p++ = *it;
+      }
+      *p++ = '\t';
+
       p = util::utos(p, start.count());
       *p++ = '\t';
       if (success) {
@@ -1210,6 +1217,12 @@ void Client::record_request_time(RequestStat *req_stat) {
   req_stat->request_time = std::chrono::steady_clock::now();
   req_stat->request_wall_time = std::chrono::system_clock::now();
 }
+
+void Client::record_request_path(RequestStat *req_stat, unsigned char* path) {
+    req_stat->path = path;
+    // std::cout << "path:" << path << '\n';  
+}
+
 
 void Client::record_connect_start_time() {
   cstat.connect_start_time = std::chrono::steady_clock::now();
