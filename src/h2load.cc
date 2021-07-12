@@ -817,7 +817,7 @@ void Client::on_stream_close(int32_t stream_id, bool success, bool final) {
 
       worker->sample_req_stat(req_stat);
 
-      record_request_bytes_body(req_stat, worker->stats.bytes_body);
+      record_request_bytes_body_end(req_stat, worker->stats.bytes_body);
 
       // Count up in successful cases only
       ++worker->request_times_smp.n;
@@ -856,7 +856,7 @@ void Client::on_stream_close(int32_t stream_id, bool success, bool final) {
 
 
       *p++ = '\t';
-      p = util::utos(p, req_stat->bytes_body);
+      p = util::utos(p, req_stat->bytes_body_end - req_stat->bytes_body_start);
 
       *p++ = '\n';
 
@@ -1230,10 +1230,13 @@ void Client::record_request_path(RequestStat *req_stat, unsigned char* path) {
     // std::cout << "path:" << path << '\n';  
 }
 
-void Client::record_request_bytes_body(RequestStat *req_stat, int64_t bytes_body) {
-    req_stat->bytes_body = bytes_body;
+void Client::record_request_bytes_body_start(RequestStat *req_stat, int64_t bytes_body_start) {
+    req_stat->bytes_body_start = bytes_body_start;
 }
 
+void Client::record_request_bytes_body_end(RequestStat *req_stat, int64_t bytes_body_end) {
+    req_stat->bytes_body_end = bytes_body_end;
+}
 
 void Client::record_connect_start_time() {
   cstat.connect_start_time = std::chrono::steady_clock::now();

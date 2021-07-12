@@ -295,6 +295,8 @@ int Http2Session::submit_request() {
   assert(req_stat);
   client_->record_request_path(req_stat, path);
 
+  client_->record_request_bytes_body_start(req_stat, client_->worker->stats.bytes_body);
+
   return 0;
 }
 

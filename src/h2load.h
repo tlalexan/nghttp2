@@ -139,8 +139,9 @@ struct RequestStat {
   bool completed;
   // url path for this request
   unsigned char* path;
-  // bytes in response body
-  int64_t bytes_body;
+  // bytes of response body send during the session, before/after this request
+  int64_t bytes_body_start;
+  int64_t bytes_body_end;
 };
 
 struct ClientStat {
@@ -399,7 +400,8 @@ struct Client {
 
   void record_request_time(RequestStat *req_stat);
   void record_request_path(RequestStat *req_stat, unsigned char* path);
-  void record_request_bytes_body(RequestStat *req_stat, int64_t bytes_body);
+  void record_request_bytes_body_start(RequestStat *req_stat, int64_t bytes_body);
+  void record_request_bytes_body_end(RequestStat *req_stat, int64_t bytes_body);
   void record_connect_start_time();
   void record_connect_time();
   void record_ttfb();
