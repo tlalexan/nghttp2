@@ -817,6 +817,8 @@ void Client::on_stream_close(int32_t stream_id, bool success, bool final) {
 
       worker->sample_req_stat(req_stat);
 
+      record_request_bytes_body(req_stat, worker->stats.bytes_body);
+
       // Count up in successful cases only
       ++worker->request_times_smp.n;
     } else {
@@ -851,6 +853,11 @@ void Client::on_stream_close(int32_t stream_id, bool success, bool final) {
       }
       *p++ = '\t';
       p = util::utos(p, delta.count());
+
+
+      *p++ = '\t';
+      p = util::utos(p, req_stat->bytes_body);
+
       *p++ = '\n';
 
       auto nwrite = static_cast<size_t>(std::distance(std::begin(buf), p));
@@ -1221,6 +1228,10 @@ void Client::record_request_time(RequestStat *req_stat) {
 void Client::record_request_path(RequestStat *req_stat, unsigned char* path) {
     req_stat->path = path;
     // std::cout << "path:" << path << '\n';  
+}
+
+void Client::record_request_bytes_body(RequestStat *req_stat, int64_t bytes_body) {
+    req_stat->bytes_body = bytes_body;
 }
 
 
